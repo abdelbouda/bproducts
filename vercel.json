@@ -5,18 +5,18 @@
   "installCommand": "npm install",
   "framework": null,
   "functions": {
-    "api/server.js": {
+    "api/**/*.js": {
       "maxDuration": 30
     }
   },
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/server.js"
+      "destination": "/api/$1"
     },
     {
       "source": "/(.*)",
-      "destination": "/dist/$1"
+      "destination": "/dist/index.html"
     }
   ]
 }
