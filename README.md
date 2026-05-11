@@ -4,7 +4,7 @@ A no-budget stack for finding price arbitrage opportunities across major e-comme
 
 ## 🚀 Features
 
-- **Real-time Price Scraping**: Automated scraping from Bol.com, Amazon NL, and Coolblue
+- **Real-time Price Scraping**: Automatedd scraping from Bol.com, Amazon NL, and Coolblue
 - **Arbitrage Analysis**: Identifies profitable price differences between platforms
 - **Live Dashboard**: Modern web interface with real-time updates
 - **API Endpoints**: RESTful API for data access
