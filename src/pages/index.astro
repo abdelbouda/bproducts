@@ -1,0 +1,222 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const title = "BProducts - Price Arbitrage Finder";
+const description = "Find the best deals and arbitrage opportunities across major e-commerce platforms. Real-time price comparison for maximum savings.";
+---
+
+<Layout title={title} description={description}>
+  <main>
+    <!-- Hero Section -->
+    <section class="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div class="max-w-7xl mx-auto px-4 text-center">
+        <div class="mb-8">
+          <span class="inline-block px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-semibold mb-4">
+            🚀 Live Price Tracking Active
+          </span>
+        </div>
+        
+        <h1 class="text-5xl md:text-7xl font-bold text-gray-900 mb-6">
+          Find <span class="text-blue-600">Price Arbitrage</span> Opportunities
+        </h1>
+        
+        <p class="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">
+          Compare real-time prices across Bol.com, Amazon, and Coolblue to find the best deals and maximize your savings.
+        </p>
+        
+        <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+          <button onclick="loadLatestData()" class="px-8 py-4 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+            🔄 Refresh Prices
+          </button>
+          <a href="#opportunities" class="px-8 py-4 bg-white text-blue-600 border-2 border-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition-colors">
+            💰 View Opportunities
+          </a>
+        </div>
+        
+        <!-- Live Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          <div class="bg-white rounded-lg p-6 shadow-lg">
+            <div class="text-3xl font-bold text-blue-600" id="total-products">2</div>
+            <div class="text-gray-600">Products Tracked</div>
+          </div>
+          <div class="bg-white rounded-lg p-6 shadow-lg">
+            <div class="text-3xl font-bold text-green-600" id="total-opportunities">0</div>
+            <div class="text-gray-600">Arbitrage Opportunities</div>
+          </div>
+          <div class="bg-white rounded-lg p-6 shadow-lg">
+            <div class="text-3xl font-bold text-purple-600" id="max-savings">€0</div>
+            <div class="text-gray-600">Max Savings</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Live Opportunities Section -->
+    <section id="opportunities" class="py-20 bg-white">
+      <div class="max-w-7xl mx-auto px-4">
+        <div class="text-center mb-12">
+          <h2 class="text-4xl font-bold text-gray-900 mb-4">Current Arbitrage Opportunities</h2>
+          <p class="text-xl text-gray-600">Real-time price differences across platforms</p>
+        </div>
+        
+        <div id="opportunities-container" class="space-y-6">
+          <!-- Opportunities will be loaded here dynamically -->
+          <div class="text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <p class="mt-4 text-gray-600">Loading latest price data...</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Products Section -->
+    <section class="py-20 bg-gray-50">
+      <div class="max-w-7xl mx-auto px-4">
+        <div class="text-center mb-12">
+          <h2 class="text-4xl font-bold text-gray-900 mb-4">Tracked Products</h2>
+          <p class="text-xl text-gray-600">Popular electronics with high arbitrage potential</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div class="bg-white rounded-lg p-6 shadow-lg">
+            <div class="flex items-center mb-4">
+              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                📱
+              </div>
+              <div>
+                <h3 class="text-xl font-semibold">iPhone 15 Pro</h3>
+                <p class="text-gray-600">128GB Natural Titanium</p>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-500">Last updated: <span id="iphone-updated">Just now</span></span>
+              <button onclick="viewProductDetails('iphone-15-pro')" class="text-blue-600 hover:text-blue-800 font-medium">
+                View Details →
+              </button>
+            </div>
+          </div>
+          
+          <div class="bg-white rounded-lg p-6 shadow-lg">
+            <div class="flex items-center mb-4">
+              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                🎧
+              </div>
+              <div>
+                <h3 class="text-xl font-semibold">AirPods Pro 2</h3>
+                <p class="text-gray-600">2nd Generation with MagSafe</p>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-500">Last updated: <span id="airpods-updated">Just now</span></span>
+              <button onclick="viewProductDetails('airpods-pro-2')" class="text-blue-600 hover:text-blue-800 font-medium">
+                View Details →
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    let opportunitiesData = null;
+    
+    async function loadLatestData() {
+      try {
+        const response = await fetch('/api/arbitrage-data');
+        const data = await response.json();
+        opportunitiesData = data;
+        
+        updateStats(data);
+        displayOpportunities(data.opportunities);
+        updateLastUpdated();
+        
+      } catch (error) {
+        console.error('Error loading data:', error);
+        displayError();
+      }
+    }
+    
+    function updateStats(data) {
+      document.getElementById('total-opportunities').textContent = data.total_opportunities;
+      document.getElementById('max-savings').textContent = `€${data.summary.highest_profit.toFixed(0)}`;
+    }
+    
+    function displayOpportunities(opportunities) {
+      const container = document.getElementById('opportunities-container');
+      
+      if (!opportunities || opportunities.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12">
+            <div class="text-6xl mb-4">🔍</div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">No Arbitrage Opportunities Found</h3>
+            <p class="text-gray-600">Prices are currently stable across platforms. Check back later for new opportunities.</p>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = opportunities.map((opp, index) => `
+        <div class="bg-white rounded-lg p-6 shadow-lg border-l-4 border-green-500">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-xl font-semibold text-gray-900">${opp.product.name}</h3>
+              <p class="text-gray-600">${opp.product.category}</p>
+            </div>
+            <div class="text-right">
+              <div class="text-2xl font-bold text-green-600">€${opp.profit.toFixed(2)}</div>
+              <div class="text-sm text-gray-500">${opp.profit_percentage.toFixed(1)}% profit</div>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-green-50 rounded-lg p-4">
+              <div class="text-sm text-green-600 font-medium mb-1">💰 Best Buy</div>
+              <div class="font-semibold">${opp.min_price.platform}</div>
+              <div class="text-2xl font-bold text-green-600">€${opp.min_price.price.toFixed(2)}</div>
+              <a href="${opp.min_price.url}" target="_blank" class="text-sm text-blue-600 hover:underline">View Deal →</a>
+            </div>
+            
+            <div class="bg-blue-50 rounded-lg p-4">
+              <div class="text-sm text-blue-600 font-medium mb-1">📈 Market Price</div>
+              <div class="font-semibold">${opp.max_price.platform}</div>
+              <div class="text-2xl font-bold text-blue-600">€${opp.max_price.price.toFixed(2)}</div>
+              <a href="${opp.max_price.url}" target="_blank" class="text-sm text-blue-600 hover:underline">View Listing →</a>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    function displayError() {
+      const container = document.getElementById('opportunities-container');
+      container.innerHTML = `
+        <div class="text-center py-12">
+          <div class="text-6xl mb-4">⚠️</div>
+          <h3 class="text-xl font-semibold text-gray-900 mb-2">Unable to Load Data</h3>
+          <p class="text-gray-600">Please try refreshing the page or check back later.</p>
+          <button onclick="loadLatestData()" class="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            Try Again
+          </button>
+        </div>
+      `;
+    }
+    
+    function updateLastUpdated() {
+      const now = new Date().toLocaleTimeString();
+      document.getElementById('iphone-updated').textContent = now;
+      document.getElementById('airpods-updated').textContent = now;
+    }
+    
+    function viewProductDetails(productId) {
+      // Scroll to opportunities section
+      document.getElementById('opportunities').scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    // Load data on page load
+    document.addEventListener('DOMContentLoaded', loadLatestData);
+    
+    // Auto-refresh every 5 minutes
+    setInterval(loadLatestData, 5 * 60 * 1000);
+  </script>
+</Layout>
