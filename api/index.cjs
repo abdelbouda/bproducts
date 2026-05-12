@@ -14,126 +14,57 @@ app.use(express.json());
 // Serve static files from the build directory
 app.use(express.static(path.join(__dirname, '../dist')));
 
-// Mock data for development - 5 populaire NL producten met arbitrage
+// Mock data for development
 const mockData = {
   timestamp: new Date().toISOString(),
-  total_opportunities: 5,
+  total_opportunities: 2,
   opportunities: [
     {
       product: {
         id: "iphone-15-pro",
         name: "Apple iPhone 15 Pro 128GB Natural Titanium",
-        category: "electronics",
-        description: "De nieuwste iPhone 15 Pro met A17 Pro chip, titanium behuizing en geavanceerde camera's."
+        category: "electronics"
       },
       min_price: {
         platform: "Bol.com",
         price: 1099.00,
-        url: "https://bol.com/nl/p/iphone-15-pro-128gb-natural-titanium/9300000001023177/",
-        availability: "Op voorraad"
+        url: "https://bol.com/iphone-15-pro",
+        availability: "In stock"
       },
       max_price: {
-        platform: "MediaMarkt",
-        price: 1249.00,
-        url: "https://www.mediamarkt.nl/nl/product/_apple-iphone-15-pro-128-gb-natural-titanium-1402588.html",
-        availability: "Op voorraad"
+        platform: "Coolblue",
+        price: 1199.00,
+        url: "https://coolblue.nl/iphone-15-pro",
+        availability: "In stock"
       },
-      profit: 150.00,
-      profit_percentage: 13.6
+      profit: 100.00,
+      profit_percentage: 9.1
     },
     {
       product: {
         id: "airpods-pro-2",
-        name: "Apple AirPods Pro (2nd generation) met MagSafe Case",
-        category: "electronics",
-        description: "Actieve noise cancelling, ruimtelijke audio en MagSafe oplader."
+        name: "Apple AirPods Pro (2nd generation) with MagSafe Case",
+        category: "electronics"
       },
       min_price: {
-        platform: "Amazon NL",
+        platform: "Amazon",
         price: 249.00,
-        url: "https://www.amazon.nl/apple-airpods-pro-2nd-generation/dp/B0DQGXPY6/",
-        availability: "Op voorraad"
+        url: "https://amazon.nl/airpods-pro-2",
+        availability: "In stock"
       },
       max_price: {
         platform: "Coolblue",
         price: 299.00,
-        url: "https://www.coolblue.nl/nl/apple-airpods-pro-2e-generatie-magsafe-case/product/950878",
-        availability: "Op voorraad"
+        url: "https://coolblue.nl/airpods-pro-2",
+        availability: "In stock"
       },
       profit: 50.00,
       profit_percentage: 20.1
-    },
-    {
-      product: {
-        id: "samsung-s24-ultra",
-        name: "Samsung Galaxy S24 Ultra 256GB",
-        category: "electronics",
-        description: "Samsung's vlaggenschip met S Pen, titanium frame en AI camera."
-      },
-      min_price: {
-        platform: "Bol.com",
-        price: 1199.00,
-        url: "https://bol.com/nl/p/samsung-galaxy-s24-ultra-256gb-titanium-black/9300000008600980/",
-        availability: "Op voorraad"
-      },
-      max_price: {
-        platform: "Expert",
-        price: 1399.00,
-        url: "https://www.expert.nl/samsung-galaxy-s24-ultra-256gb-titanium-black/624823/",
-        availability: "Op voorraad"
-      },
-      profit: 200.00,
-      profit_percentage: 16.7
-    },
-    {
-      product: {
-        id: "playstation-5",
-        name: "Sony PlayStation 5 Console",
-        category: "gaming",
-        description: "Next-gen gaming met 4K gaming, haptic feedback en snelle SSD."
-      },
-      min_price: {
-        platform: "Amazon NL",
-        price: 449.00,
-        url: "https://www.amazon.nl/playstation-5-console/dp/B08H95Y452/",
-        availability: "Op voorraad"
-      },
-      max_price: {
-        platform: "GameMania",
-        price: 549.00,
-        url: "https://www.gamemania.nl/playstation-5.html",
-        availability: "Op voorraad"
-      },
-      profit: 100.00,
-      profit_percentage: 22.3
-    },
-    {
-      product: {
-        id: "nintendo-switch-oled",
-        name: "Nintendo Switch OLED Model",
-        category: "gaming",
-        description: "Draagbare gaming met 7-inch OLED scherm en verbeterde audio."
-      },
-      min_price: {
-        platform: "Bol.com",
-        price: 319.00,
-        url: "https://bol.com/nl/p/nintendo-switch-oled-model-wit/9300000015999750/",
-        availability: "Op voorraad"
-      },
-      max_price: {
-        platform: "Coolblue",
-        price: 379.00,
-        url: "https://www.coolblue.nl/nl/nintendo-switch-oled-model-wit/product/950879",
-        availability: "Op voorraad"
-      },
-      profit: 60.00,
-      profit_percentage: 18.8
     }
   ],
   summary: {
-    highest_profit: 200.00,
-    average_profit: 112.00,
-    total_savings_potential: 560.00
+    highest_profit: 100.00,
+    average_profit: 75.00
   }
 };
 
