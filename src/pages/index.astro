@@ -59,12 +59,33 @@ const description = "Find the best deals and arbitrage opportunities across majo
           <p class="text-xl text-gray-600">Real-time price differences across platforms</p>
         </div>
         
-        <div id="opportunities-container" class="space-y-6">
-          <!-- Opportunities will be loaded here dynamically -->
-          <div class="text-center py-12">
-            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            <p class="mt-4 text-gray-600">Loading latest price data...</p>
+        <div id="opportunities-container" class="space-y-4" id="opportunities-list">
+            <!-- Opportunities will be loaded here -->
           </div>
+        
+        <!-- Product Details Modal -->
+        <div id="product-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+          <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+              <div class="flex justify-between items-start mb-4">
+                <h2 id="modal-product-name" class="text-2xl font-bold text-gray-900"></h2>
+                <button onclick="closeProductModal()" class="text-gray-500 hover:text-gray-700">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </div>
+              
+              <div id="modal-content" class="space-y-6">
+                <!-- Product details will be loaded here -->
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="text-center py-12">
+          <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <p class="mt-4 text-gray-600">Loading latest price data...</p>
         </div>
       </div>
     </section>
@@ -176,6 +197,19 @@ const description = "Find the best deals and arbitrage opportunities across majo
               <div class="text-2xl font-bold text-green-600">€${opp.min_price.price.toFixed(2)}</div>
               <a href="${opp.min_price.url}" target="_blank" class="text-sm text-blue-600 hover:underline">View Deal →</a>
             </div>
+            <div class="bg-red-50 rounded-lg p-4">
+              <div class="text-sm text-red-600 font-medium mb-1">💸 Most Expensive</div>
+              <div class="font-semibold">${opp.max_price.platform}</div>
+              <div class="text-2xl font-bold text-red-600">€${opp.max_price.price.toFixed(2)}</div>
+              <a href="${opp.max_price.url}" target="_blank" class="text-sm text-blue-600 hover:underline">View Store →</a>
+            </div>
+          </div>
+          
+          <div class="mt-4 flex justify-center">
+            <button onclick="viewProductDetails('${opp.product.id}')" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+              📊 View Details
+            </button>
+          </div>
             
             <div class="bg-blue-50 rounded-lg p-4">
               <div class="text-sm text-blue-600 font-medium mb-1">📈 Market Price</div>
@@ -209,8 +243,87 @@ const description = "Find the best deals and arbitrage opportunities across majo
     }
     
     function viewProductDetails(productId) {
-      // Scroll to opportunities section
-      document.getElementById('opportunities').scrollIntoView({ behavior: 'smooth' });
+      // Fetch product details from API
+      fetch(`/api/product-details/${productId}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.error) {
+            alert('Product not found');
+            return;
+          }
+          
+          // Update modal content
+          document.getElementById('modal-product-name').textContent = data.product.name;
+          
+          const modalContent = document.getElementById('modal-content');
+          modalContent.innerHTML = `
+            <div class="bg-gradient-to-r from-blue-50 to-green-50 rounded-lg p-6 mb-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">Price Analysis</h3>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-green-100 rounded-lg p-4">
+                  <div class="text-sm text-green-600 font-medium mb-1">💰 Cheapest</div>
+                  <div class="text-2xl font-bold text-green-700">€${data.price_analysis.cheapest.price.toFixed(2)}</div>
+                  <div class="text-sm text-gray-600">${data.price_analysis.cheapest.platform}</div>
+                </div>
+                <div class="bg-blue-100 rounded-lg p-4">
+                  <div class="text-sm text-blue-600 font-medium mb-1">📊 Average</div>
+                  <div class="text-2xl font-bold text-blue-700">€${data.price_analysis.average_price}</div>
+                  <div class="text-sm text-gray-600">Market Average</div>
+                </div>
+                <div class="bg-red-100 rounded-lg p-4">
+                  <div class="text-sm text-red-600 font-medium mb-1">💸 Most Expensive</div>
+                  <div class="text-2xl font-bold text-red-700">€${data.price_analysis.most_expensive.price.toFixed(2)}</div>
+                  <div class="text-sm text-gray-600">${data.price_analysis.most_expensive.platform}</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mb-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">Available Stores</h3>
+              <div class="space-y-4">
+                ${data.platforms.map(platform => `
+                  <div class="border rounded-lg p-4 ${platform.type === 'cheapest' ? 'border-green-500 bg-green-50' : 'border-gray-300'}">
+                    <div class="flex items-center justify-between">
+                      <div>
+                        <div class="font-semibold text-gray-900">${platform.name}</div>
+                        <div class="text-sm text-gray-600">${platform.availability}</div>
+                      </div>
+                      <div class="text-right">
+                        <div class="text-2xl font-bold ${platform.type === 'cheapest' ? 'text-green-600' : 'text-gray-900'}">€${platform.price.toFixed(2)}</div>
+                        <a href="${platform.url}" target="_blank" class="inline-block mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                          View Store →
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+            
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <h3 class="text-lg font-semibold text-gray-900 mb-2">💡 Savings Opportunity</h3>
+              <div class="text-3xl font-bold text-green-600 mb-2">€${data.price_analysis.savings_opportunity.toFixed(2)}</div>
+              <div class="text-gray-600">Save ${data.price_analysis.price_difference_percentage.toFixed(1)}% by buying from the cheapest store!</div>
+            </div>
+            
+            <div class="text-sm text-gray-500 text-center">
+              Last updated: ${new Date(data.last_updated).toLocaleString()}
+            </div>
+          `;
+          
+          // Show modal
+          document.getElementById('product-modal').classList.remove('hidden');
+          document.body.style.overflow = 'hidden';
+        })
+        .catch(error => {
+          console.error('Error fetching product details:', error);
+          alert('Failed to load product details');
+        });
+    }
+    
+    function closeProductModal() {
+      document.getElementById('product-modal').classList.add('hidden');
+      document.body.style.overflow = 'auto';
     }
     
     // Load data on page load

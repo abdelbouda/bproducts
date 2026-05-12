@@ -107,6 +107,57 @@ app.get('/api/arbitrage-data', async (req, res) => {
   }
 });
 
+// Product details endpoint
+app.get('/api/product-details/:productId', async (req, res) => {
+  try {
+    const { productId } = req.params;
+    
+    // Find product in opportunities
+    const product = mockData.opportunities.find(p => p.product.id === productId);
+    
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+    
+    // Enhanced product details with price analysis
+    const productDetails = {
+      ...product,
+      price_analysis: {
+        cheapest: product.min_price,
+        most_expensive: product.max_price,
+        average_price: ((product.min_price.price + product.max_price.price) / 2).toFixed(2),
+        price_difference: product.profit,
+        price_difference_percentage: product.profit_percentage,
+        savings_opportunity: product.profit
+      },
+      platforms: [
+        {
+          name: product.min_price.platform,
+          price: product.min_price.price,
+          url: product.min_price.url,
+          availability: product.min_price.availability,
+          type: 'cheapest'
+        },
+        {
+          name: product.max_price.platform,
+          price: product.max_price.price,
+          url: product.max_price.url,
+          availability: product.max_price.availability,
+          type: 'most_expensive'
+        }
+      ],
+      last_updated: new Date().toISOString(),
+      currency: 'EUR'
+    };
+    
+    res.json(productDetails);
+    
+  } catch (error) {
+    console.error('Error fetching product details:', error);
+    res.status(500).json({ error: 'Failed to fetch product details' });
+  }
+});
+
 app.get('/api/refresh', async (req, res) => {
   try {
     await runScraper();
